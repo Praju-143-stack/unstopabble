@@ -1,1 +1,504 @@
 
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BloodBridge AI — Emergency Donor Coordination</title>
+<style>
+:root {
+  --red:#c9233b;
+  --red2:#ef5265;
+  --ink:#172033;
+  --muted:#697386;
+  --line:#e7eaf0;
+  --bg:#f6f7fb;
+  --white:#fff;
+  --green:#16845b;
+  --amber:#b7791f;
+  --nav:#151d2e;
+  --shadow:0 12px 35px rgba(26,37,59,.07);
+}
+* { box-sizing:border-box }
+body {
+  margin:0;
+  background:var(--bg);
+  font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;
+  color:var(--ink);
+}
+button,input,select,textarea { font:inherit }
+button { cursor:pointer }
+.app { min-height:100vh;display:grid;grid-template-columns:245px 1fr }
+.sidebar {
+  background:var(--nav);color:#d8deea;padding:25px 17px;
+  display:flex;flex-direction:column;gap:27px
+}
+.brand { display:flex;align-items:center;gap:11px;padding:0 9px }
+.brandmark {
+  width:39px;height:39px;border-radius:13px;
+  background:linear-gradient(135deg,#f45b6c,#b91430);
+  display:grid;place-items:center;color:white;font-size:22px;font-weight:800;
+  box-shadow:0 7px 18px #c9233b55
+}
+.brand strong { display:block;color:white;font-size:17px }
+.brand small { color:#9aa6ba;font-size:11px }
+.navlabel {
+  color:#7f8ba1;font-size:10px;font-weight:800;
+  letter-spacing:1.3px;padding:0 12px;margin-bottom:-16px
+}
+.nav { display:grid;gap:5px }
+.nav button {
+  border:0;background:transparent;color:#aeb8c9;text-align:left;
+  padding:11px 13px;border-radius:10px;display:flex;gap:12px;align-items:center;font-weight:600
+}
+.nav button.active,.nav button:hover { background:#2a354b;color:white }
+.nav .ico { width:19px;text-align:center;font-size:17px }
+.sidefoot {
+  margin-top:auto;border-top:1px solid #303b50;
+  padding:17px 10px 0;color:#8995a9;font-size:11px
+}
+.sidefoot b { color:#cbd3df;display:block;margin-bottom:4px }
+.main { min-width:0 }
+.topbar {
+  height:76px;background:white;border-bottom:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 34px;position:sticky;top:0;z-index:5
+}
+.crumb { font-size:13px;color:var(--muted) }
+.crumb b { color:var(--ink) }
+.topright { display:flex;align-items:center;gap:13px }
+.demo {
+  font-size:11px;font-weight:800;letter-spacing:.5px;color:#965d0b;
+  background:#fff5df;border:1px solid #f6e4b8;border-radius:30px;padding:6px 10px
+}
+.avatar {
+  width:34px;height:34px;background:#fde8eb;color:var(--red);
+  border-radius:50%;display:grid;place-items:center;font-weight:800
+}
+.content { max-width:1440px;margin:auto;padding:30px 34px 60px }
+.welcome {
+  display:flex;justify-content:space-between;align-items:flex-start;
+  gap:20px;margin-bottom:24px
+}
+.eyebrow {
+  color:var(--red);font-size:11px;font-weight:800;
+  letter-spacing:1.3px;text-transform:uppercase
+}
+.welcome h1 { font-size:27px;line-height:1.2;margin:5px 0 7px;letter-spacing:-.6px }
+.welcome p { margin:0;color:var(--muted);font-size:14px }
+.btn {
+  border:0;border-radius:10px;padding:11px 16px;font-weight:750;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px
+}
+.primary { background:var(--red);color:white;box-shadow:0 6px 15px #c9233b25 }
+.primary:hover { background:#ae1d32 }
+.secondary { background:white;border:1px solid var(--line);color:var(--ink) }
+.soft { background:#fff0f2;color:var(--red) }
+.stats { display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-bottom:19px }
+.stat,.panel,.card {
+  background:white;border:1px solid var(--line);border-radius:15px;box-shadow:var(--shadow)
+}
+.stat { padding:17px 18px }
+.stathead { display:flex;justify-content:space-between;color:var(--muted);font-size:12px;font-weight:650 }
+.staticon {
+  width:32px;height:32px;border-radius:10px;background:#fff0f2;
+  color:var(--red);display:grid;place-items:center
+}
+.statnum { font-size:27px;font-weight:800;letter-spacing:-.8px;margin:8px 0 1px }
+.statnote { font-size:11px;color:var(--muted) }
+.up { color:var(--green);font-weight:750 }
+.grid2 { display:grid;grid-template-columns:1.45fr 1fr;gap:17px;margin-bottom:18px }
+.panel { padding:20px;min-width:0 }
+.panelhead { display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:16px }
+.panelhead h2 { font-size:15px;margin:0 }
+.panelhead p { margin:3px 0 0;color:var(--muted);font-size:11px }
+.linkbtn { border:0;background:none;color:var(--red);font-size:12px;font-weight:750 }
+.mapbox {
+  height:255px;border-radius:12px;overflow:hidden;position:relative;
+  background:#e9eff0;border:1px solid #e0e8e7
+}
+.mapbox svg { width:100%;height:100%;display:block }
+.maplegend {
+  position:absolute;bottom:12px;left:12px;background:white;
+  border:1px solid var(--line);border-radius:9px;padding:8px 10px;
+  font-size:10px;color:var(--muted);box-shadow:var(--shadow)
+}
+.dot { display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--red);margin-right:5px }
+.maptag { position:absolute;top:12px;right:12px;background:#ffffffdf;padding:6px 9px;border-radius:8px;font-size:10px;font-weight:750 }
+.requestlist { display:grid;gap:12px }
+.request { display:flex;gap:12px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:11px }
+.blood {
+  width:42px;height:42px;border-radius:12px;background:#fff0f2;color:var(--red);
+  font-size:14px;font-weight:850;display:grid;place-items:center;flex-shrink:0
+}
+.reqinfo { min-width:0;flex:1 }
+.reqinfo b { font-size:12px;display:block }
+.reqinfo small { display:block;color:var(--muted);font-size:10px;margin-top:2px }
+.status { font-size:10px;font-weight:800;padding:5px 8px;border-radius:30px;white-space:nowrap;background:#fff4df;color:#9b6817 }
+.status.green { background:#e8f7ef;color:var(--green) }
+.status.red { background:#fff0f2;color:var(--red) }
+.tablewrap { overflow:auto }
+table { border-collapse:collapse;width:100%;min-width:550px }
+th { text-align:left;color:#8790a0;font-size:10px;letter-spacing:.7px;text-transform:uppercase;padding:10px;border-bottom:1px solid var(--line) }
+td { padding:12px 10px;border-bottom:1px solid #f0f1f5;font-size:12px }
+tr:last-child td { border:0 }
+.donorname { font-weight:750 }
+.muted { color:var(--muted) }
+.score { font-weight:850;color:var(--green) }
+.page { display:none }
+.page.active { display:block }
+.formgrid { display:grid;grid-template-columns:1fr 1fr;gap:14px }
+.field { display:grid;gap:6px }
+.field.full { grid-column:1/-1 }
+.field label { font-size:12px;font-weight:750;color:#475166 }
+.field input,.field select,.field textarea {
+  width:100%;border:1px solid #dfe3eb;background:white;
+  border-radius:9px;padding:11px 12px;outline:none;color:var(--ink)
+}
+.field input:focus,.field select:focus,.field textarea:focus {
+  border-color:#e36a79;box-shadow:0 0 0 3px #c9233b13
+}
+.hint { font-size:10px;color:var(--muted) }
+.formactions { display:flex;gap:9px;margin-top:17px }
+.resultbox {
+  margin-top:18px;border:1px solid #f2c9cf;background:#fffafb;
+  border-radius:13px;padding:17px;display:none
+}
+.resultbox.show { display:block }
+.resulttop { display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:10px }
+.resulttop b { font-size:14px }
+.matchrow { display:flex;align-items:center;gap:11px;padding:11px 0;border-top:1px solid #f2e4e6 }
+.matchrow .blood { width:37px;height:37px }
+.matchmeta { flex:1 }
+.matchmeta b { font-size:12px;display:block }
+.matchmeta small { font-size:10px;color:var(--muted) }
+.progress { height:6px;background:#f0e4e6;border-radius:10px;margin-top:5px;overflow:hidden }
+.progress span { display:block;height:100%;background:var(--red);border-radius:10px }
+.twoforms { display:grid;grid-template-columns:1fr 1fr;gap:17px }
+.notice { padding:12px 14px;background:#fff7e8;border:1px solid #f4e3bd;color:#815b19;border-radius:10px;font-size:11px;margin-top:14px }
+.empty { padding:28px;text-align:center;color:var(--muted);font-size:13px }
+.toast {
+  position:fixed;right:22px;bottom:22px;background:#172033;color:white;
+  padding:13px 17px;border-radius:11px;box-shadow:var(--shadow);
+  font-size:13px;opacity:0;transform:translateY(12px);transition:.25s;
+  pointer-events:none;z-index:20
+}
+.toast.show { opacity:1;transform:translateY(0) }
+.mobilemenu { display:none;border:0;background:none;font-size:22px }
+.tagline { font-size:11px;color:var(--muted) }
+.pill { font-size:10px;padding:4px 8px;border-radius:30px;background:#eef2ff;color:#4b5f9b;font-weight:750 }
+@media(max-width:1000px) {
+  .app { grid-template-columns:205px 1fr }
+  .stats { grid-template-columns:repeat(2,1fr) }
+  .grid2 { grid-template-columns:1fr }
+  .content { padding:24px }
+  .topbar { padding:0 24px }
+}
+@media(max-width:700px) {
+  .app { display:block }
+  .sidebar { position:fixed;z-index:10;inset:0 auto 0 0;width:250px;transform:translateX(-105%);transition:.25s;box-shadow:var(--shadow) }
+  .sidebar.open { transform:translateX(0) }
+  .mobilemenu { display:block }
+  .topbar { height:64px;padding:0 16px }
+  .content { padding:21px 15px 45px }
+  .welcome { display:block }
+  .welcome .btn { margin-top:15px }
+  .welcome h1 { font-size:24px }
+  .stats { gap:9px }
+  .stat { padding:13px }
+  .statnum { font-size:23px }
+  .stathead { font-size:10px }
+  .twoforms { grid-template-columns:1fr }
+  .formgrid { grid-template-columns:1fr }
+  .field.full { grid-column:auto }
+  .panel { padding:15px }
+  .demo { font-size:9px }
+  .topright { gap:7px }
+}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar" id="sidebar">
+<div class="brand">
+<div class="brandmark">✚</div>
+<div><strong>BloodBridge AI</strong><small>EMERGENCY DONOR NETWORK</small></div>
+</div>
+<div class="navlabel">WORKSPACE</div>
+<nav class="nav">
+<button class="active" data-page="dashboard"><span class="ico">▦</span> Overview</button>
+<button data-page="request"><span class="ico">＋</span> Create blood request</button>
+<button data-page="donors"><span class="ico">♙</span> Donor matching</button>
+<button data-page="register"><span class="ico">♡</span> Become a donor</button>
+<button data-page="tracking"><span class="ico">◷</span> Request tracking</button>
+</nav>
+<div class="navlabel">MANAGEMENT</div>
+<nav class="nav">
+<button data-page="analytics"><span class="ico">▥</span> Impact analytics</button>
+</nav>
+<div class="sidefoot"><b>Prototype environment</b>Sample records only · No real donor notifications<br><br>BloodBridge AI v0.1</div>
+</aside>
+<main class="main">
+<header class="topbar">
+<div style="display:flex;align-items:center;gap:12px">
+<button class="mobilemenu" id="menu">☰</button>
+<div class="crumb">Workspace&nbsp; / &nbsp;<b id="crumb">Overview</b></div>
+</div>
+<div class="topright"><span class="demo">● DEMO MODE</span><div class="avatar">BB</div></div>
+</header>
+<div class="content">
+<section class="page active" id="dashboard">
+<div class="welcome">
+<div><div class="eyebrow">Emergency coordination platform</div><h1>Good afternoon. Here's your overview.</h1><p>Connect emergency requests with potentially suitable nearby donors.</p></div>
+<button class="btn primary" onclick="showPage('request')">＋ Create blood request</button>
+</div>
+<div class="stats">
+<div class="stat"><div class="stathead">Registered donors <span class="staticon">♙</span></div><div class="statnum" id="statDonors">1,284</div><div class="statnote"><span class="up">↑ 8.2%</span> this month</div></div>
+<div class="stat"><div class="stathead">Active requests <span class="staticon">✚</span></div><div class="statnum" id="statRequests">18</div><div class="statnote">Across the demo network</div></div>
+<div class="stat"><div class="stathead">Potential matches <span class="staticon">⌖</span></div><div class="statnum" id="statMatches">96</div><div class="statnote">AI-ranked suggestions</div></div>
+<div class="stat"><div class="stathead">Responses received <span class="staticon">✓</span></div><div class="statnum">72%</div><div class="statnote"><span class="up">↑ 5.4%</span> response rate</div></div>
+</div>
+<div class="grid2">
+<div class="panel">
+<div class="panelhead"><div><h2>Donor network overview</h2><p>Illustrative coverage around Bengaluru</p></div><span class="pill">MAP PREVIEW</span></div>
+<div class="mapbox">
+<svg viewBox="0 0 700 300" preserveAspectRatio="xMidYMid slice" aria-label="Illustrative map of donor locations">
+<rect width="700" height="300" fill="#eaf0eb"/>
+<path d="M-20 60 L720 210 M20 -20 L500 340 M170 -30 L100 340 M430 -20 L370 330 M620 -20 L550 340" stroke="#fff" stroke-width="18" fill="none"/>
+<path d="M-20 60 L720 210 M20 -20 L500 340 M170 -30 L100 340 M430 -20 L370 330 M620 -20 L550 340" stroke="#d5ded9" stroke-width="2" fill="none"/>
+<path d="M0 230 Q180 130 330 190 T700 80 M0 20 Q200 100 360 40 T700 250" stroke="#d1dfd8" stroke-width="7" fill="none"/>
+<path d="M0 230 Q180 130 330 190 T700 80 M0 20 Q200 100 360 40 T700 250" stroke="#fff" stroke-width="2" fill="none"/>
+<g fill="#c9233b" stroke="white" stroke-width="4">
+<circle cx="340" cy="145" r="10"/><circle cx="270" cy="100" r="7"/><circle cx="420" cy="90" r="7"/><circle cx="470" cy="205" r="7"/><circle cx="190" cy="200" r="7"/><circle cx="550" cy="135" r="7"/><circle cx="300" cy="240" r="7"/>
+</g>
+<circle cx="340" cy="145" r="34" fill="#c9233b" opacity=".10"/>
+<circle cx="340" cy="145" r="54" fill="none" stroke="#c9233b" stroke-dasharray="5 5" opacity=".45"/>
+<g fill="#687b70" font-size="12" font-family="Arial">
+<text x="355" y="140">Hospital</text><text x="242" y="85">Indiranagar</text><text x="430" y="75">Whitefield</text><text x="478" y="225">Bellandur</text><text x="120" y="220">Jayanagar</text><text x="555" y="120">KR Puram</text>
+</g>
+</svg>
+<div class="maptag">Bengaluru · sample map</div>
+<div class="maplegend"><span class="dot"></span>Potential donor&nbsp;&nbsp; <span style="color:#c9233b">◎</span> Request location</div>
+</div></div>
+<div class="panel">
+<div class="panelhead"><div><h2>Recent emergency requests</h2><p>Sample activity feed</p></div><button class="linkbtn" onclick="showPage('tracking')">View all →</button></div>
+<div class="requestlist" id="recentRequests">
+<div class="request"><div class="blood">O−</div><div class="reqinfo"><b>City Care Hospital</b><small>2 units · 1.8 km · 12 min ago</small></div><span class="status red">Urgent</span></div>
+<div class="request"><div class="blood">B+</div><div class="reqinfo"><b>Greenview Medical</b><small>1 unit · 3.4 km · 35 min ago</small></div><span class="status">Matching</span></div>
+<div class="request"><div class="blood">AB+</div><div class="reqinfo"><b>Metro Health Centre</b><small>2 units · 5.2 km · 1 hr ago</small></div><span class="status green">Responded</span></div>
+</div></div></div>
+<div class="panel">
+<div class="panelhead"><div><h2>Top AI-ranked potential donors</h2><p>Illustrative ranking · final suitability requires blood-bank assessment</p></div><button class="linkbtn" onclick="showPage('donors')">Open matching →</button></div>
+<div class="tablewrap"><table><thead><tr><th>Donor</th><th>Blood group</th><th>Distance</th><th>Availability</th><th>Match score</th></tr></thead>
+<tbody id="topDonors">
+<tr><td class="donorname">Ananya R.</td><td>O−</td><td>1.2 km</td><td><span class="status green">Available</span></td><td class="score">96/100</td></tr>
+<tr><td class="donorname">Rahul K.</td><td>O−</td><td>2.4 km</td><td><span class="status green">Available</span></td><td class="score">91/100</td></tr>
+<tr><td class="donorname">Meera S.</td><td>O−</td><td>4.1 km</td><td><span class="status">Check status</span></td><td class="score">82/100</td></tr>
+</tbody></table></div></div>
+</section>
+
+<section class="page" id="request">
+<div class="welcome"><div><div class="eyebrow">Emergency workflow</div><h1>Create a blood request</h1><p>Enter the requirement to discover and rank potential donors.</p></div><span class="pill">STEP 1 · REQUEST</span></div>
+<div class="panel"><div class="panelhead"><div><h2>Patient / requester details</h2><p>For this prototype, use fictional information only.</p></div></div>
+<form id="requestForm">
+<div class="formgrid">
+<div class="field"><label>Patient / requester name</label><input id="patient" placeholder="e.g. Priya Sharma" required></div>
+<div class="field"><label>Contact number</label><input id="phone" placeholder="10-digit mobile number" pattern="[0-9]{10}" required></div>
+<div class="field"><label>Blood group required</label><select id="blood" required><option value="">Select blood group</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select></div>
+<div class="field"><label>Units required</label><select id="units"><option>1</option><option selected>2</option><option>3</option><option>4</option></select></div>
+<div class="field"><label>Hospital name</label><input id="hospital" placeholder="Hospital / blood bank name" required></div>
+<div class="field"><label>Area / location</label><input id="location" placeholder="e.g. Bellandur, Bengaluru" required></div>
+<div class="field"><label>Urgency</label><select id="urgency"><option value="Routine">Routine</option><option value="Urgent" selected>Urgent</option><option value="Critical">Critical</option></select></div>
+<div class="field"><label>Search radius</label><select id="radius"><option value="2">2 km</option><option value="5" selected>5 km</option><option value="10">10 km</option><option value="20">20 km</option></select></div>
+<div class="field full"><label>Additional notes (optional)</label><textarea id="notes" rows="2" placeholder="Any coordination details..."></textarea></div>
+</div>
+<div class="notice">Safety: This prototype only identifies potential contacts. Confirm actual blood availability, donor eligibility, compatibility testing and transfusion decisions through a licensed blood bank and qualified medical professionals.</div>
+<div class="formactions"><button class="btn primary" type="submit">✦ Find potential donors</button><button class="btn secondary" type="reset" onclick="document.getElementById('matchResult').classList.remove('show')">Clear form</button></div>
+</form>
+<div class="resultbox" id="matchResult">
+<div class="resulttop"><b>✦ AI-assisted matching results</b><span class="status green">Demo results</span></div>
+<p class="tagline" id="resultSummary">Potential donors ranked using the prototype scoring model.</p>
+<div id="matchRows"></div>
+<div class="notice">These are simulated donor profiles and scores, not real people or confirmed medical matches. No notifications have been sent.</div>
+</div></div></section>
+
+<section class="page" id="donors">
+<div class="welcome"><div><div class="eyebrow">Intelligent discovery</div><h1>AI donor matching</h1><p>Explore sample donor profiles and understand how ranking works.</p></div><span class="pill">EXPLAINABLE SCORING</span></div>
+<div class="panel"><div class="panelhead"><div><h2>Search potential donors</h2><p>Filters are applied before the ranking score.</p></div></div>
+<div class="formgrid">
+<div class="field"><label>Required blood group</label><select id="filterBlood"><option value="O-">O−</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option></select></div>
+<div class="field"><label>Maximum distance</label><select id="filterRadius"><option value="2">2 km</option><option value="5" selected>5 km</option><option value="10">10 km</option><option value="20">20 km</option></select></div>
+</div>
+<div class="formactions"><button class="btn primary" onclick="runDirectorySearch()">Run matching engine</button></div>
+<div class="tablewrap" style="margin-top:18px"><table><thead><tr><th>Potential donor</th><th>Group</th><th>Distance</th><th>Availability</th><th>Score</th><th>Breakdown</th></tr></thead><tbody id="directoryRows"></tbody></table></div>
+<div class="notice">The demo uses simplified sample blood-group filtering. Real compatibility depends on component type, testing and clinical assessment. A score is a coordination priority, not a medical compatibility result.</div>
+</div></section>
+
+<section class="page" id="register">
+<div class="welcome"><div><div class="eyebrow">Grow the donor community</div><h1>Become a donor</h1><p>Register a sample donor profile in this local prototype.</p></div></div>
+<div class="twoforms">
+<div class="panel"><div class="panelhead"><div><h2>Donor registration</h2><p>Use fictional details for testing.</p></div></div>
+<form id="donorForm"><div class="formgrid">
+<div class="field full"><label>Full name</label><input id="dname" required placeholder="Your name"></div>
+<div class="field"><label>Blood group</label><select id="dBlood" required><option value="">Select</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select></div>
+<div class="field"><label>Age</label><input id="dAge" type="number" min="18" max="65" required placeholder="18+"></div>
+<div class="field full"><label>Area / city</label><input id="dLocation" required placeholder="e.g. Whitefield, Bengaluru"></div>
+<div class="field full"><label>Last donation date (if applicable)</label><input id="lastDonation" type="date"></div>
+<div class="field full"><label>Availability</label><select id="dAvailable"><option value="yes">Available for contact</option><option value="no">Not currently available</option></select></div>
+<div class="field full"><label style="display:flex;gap:8px;align-items:flex-start"><input type="checkbox" required style="width:auto;margin-top:3px"> I consent to being contacted about voluntary blood donation requests.</label></div>
+</div><div class="formactions"><button class="btn primary">Register sample donor</button></div></form></div>
+<div class="panel"><h2 style="font-size:15px;margin:0 0 10px">How donor matching works</h2>
+<div class="requestlist">
+<div class="request"><div class="blood">01</div><div class="reqinfo"><b>Blood group filtering</b><small>Filter profiles for further review by a blood bank.</small></div></div>
+<div class="request"><div class="blood">02</div><div class="reqinfo"><b>Location proximity</b><small>Prioritize donors nearer to the hospital.</small></div></div>
+<div class="request"><div class="blood">03</div><div class="reqinfo"><b>Availability & consent</b><small>Respect current availability and contact preferences.</small></div></div>
+<div class="request"><div class="blood">04</div><div class="reqinfo"><b>Transparent ranking</b><small>Show why a profile appears higher in results.</small></div></div>
+</div><div class="notice">Registration in this demonstration does not establish medical eligibility to donate. Blood-bank staff must assess eligibility.</div></div>
+</div></section>
+
+<section class="page" id="tracking">
+<div class="welcome"><div><div class="eyebrow">Request operations</div><h1>Request tracking</h1><p>Monitor the status of demo emergency requests.</p></div><button class="btn primary" onclick="showPage('request')">＋ New request</button></div>
+<div class="panel"><div class="panelhead"><div><h2>All requests</h2><p>New requests created in this session appear here.</p></div><span class="pill">LOCAL DEMO DATA</span></div>
+<div class="tablewrap"><table><thead><tr><th>Request ID</th><th>Blood group</th><th>Hospital</th><th>Units</th><th>Urgency</th><th>Status</th></tr></thead>
+<tbody id="trackingRows">
+<tr><td>#BB-1042</td><td>O−</td><td>City Care Hospital</td><td>2</td><td>Urgent</td><td><span class="status red">Matching</span></td></tr>
+<tr><td>#BB-1041</td><td>B+</td><td>Greenview Medical</td><td>1</td><td>Routine</td><td><span class="status">Awaiting response</span></td></tr>
+<tr><td>#BB-1040</td><td>AB+</td><td>Metro Health Centre</td><td>2</td><td>Urgent</td><td><span class="status green">Responses received</span></td></tr>
+</tbody></table></div></div></section>
+
+<section class="page" id="analytics">
+<div class="welcome"><div><div class="eyebrow">Network intelligence</div><h1>Impact analytics</h1><p>Illustrative metrics for a future connected donor network.</p></div><span class="pill">SAMPLE METRICS</span></div>
+<div class="stats">
+<div class="stat"><div class="stathead">Requests created</div><div class="statnum">428</div><div class="statnote">Illustrative monthly volume</div></div>
+<div class="stat"><div class="stathead">Potential matches</div><div class="statnum">1,936</div><div class="statnote">Illustrative ranked results</div></div>
+<div class="stat"><div class="stathead">Donor response rate</div><div class="statnum">72%</div><div class="statnote">Sample analytics only</div></div>
+<div class="stat"><div class="stathead">Median first response</div><div class="statnum">8 min</div><div class="statnote">Hypothetical target metric</div></div>
+</div>
+<div class="grid2">
+<div class="panel"><h2 style="font-size:15px;margin:0 0 16px">Requests by blood group</h2><div id="bars"></div></div>
+<div class="panel"><h2 style="font-size:15px;margin:0 0 16px">Platform success measures</h2>
+<div class="requestlist">
+<div class="request"><div class="blood">⏱</div><div class="reqinfo"><b>Time to first donor response</b><small>Measure from verified request to first response.</small></div></div>
+<div class="request"><div class="blood">◎</div><div class="reqinfo"><b>Relevant donor reach</b><small>Measure contacted profiles within search radius.</small></div></div>
+<div class="request"><div class="blood">✓</div><div class="reqinfo"><b>Verified coordination completion</b><small>Confirmed by participating blood banks only.</small></div></div>
+</div></div></div></section>
+</div></main></div>
+<div class="toast" id="toast"></div>
+<script>
+const demoDonors=[
+{name:'Ananya R.',blood:'O-',km:1.2,available:true,verified:true,avail:100,verify:100},
+{name:'Rahul K.',blood:'O-',km:2.4,available:true,verified:true,avail:100,verify:100},
+{name:'Meera S.',blood:'O-',km:4.1,available:false,verified:true,avail:45,verify:100},
+{name:'Karan M.',blood:'A+',km:1.1,available:true,verified:true,avail:100,verify:100},
+{name:'Ishita P.',blood:'B+',km:3.2,available:true,verified:true,avail:100,verify:100},
+{name:'Dev N.',blood:'AB+',km:6.8,available:true,verified:false,avail:100,verify:45},
+{name:'Nisha V.',blood:'O+',km:7.5,available:true,verified:true,avail:100,verify:100},
+{name:'Arjun T.',blood:'O-',km:8.6,available:true,verified:false,avail:100,verify:45},
+{name:'Sara D.',blood:'A-',km:9.4,available:false,verified:true,avail:45,verify:100},
+{name:'Vikram S.',blood:'B-',km:2.8,available:true,verified:true,avail:100,verify:100}
+];
+let requests=[
+{id:'BB-1042',blood:'O-',hospital:'City Care Hospital',units:2,urgency:'Urgent',status:'Matching'},
+{id:'BB-1041',blood:'B+',hospital:'Greenview Medical',units:1,urgency:'Routine',status:'Awaiting response'},
+{id:'BB-1040',blood:'AB+',hospital:'Metro Health Centre',units:2,urgency:'Urgent',status:'Responses received'}
+];
+function toast(msg){
+ const t=document.getElementById('toast');
+ t.textContent=msg;t.classList.add('show');
+ setTimeout(()=>t.classList.remove('show'),2600);
+}
+function showPage(id){
+ document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));
+ document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));
+ const labels={dashboard:'Overview',request:'Create blood request',donors:'Donor matching',register:'Become a donor',tracking:'Request tracking',analytics:'Impact analytics'};
+ document.getElementById('crumb').textContent=labels[id];
+ document.getElementById('sidebar').classList.remove('open');
+ if(id==='donors')runDirectorySearch();
+ if(id==='analytics')drawBars();
+ window.scrollTo(0,0);
+}
+document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
+document.getElementById('menu').onclick=()=>document.getElementById('sidebar').classList.toggle('open');
+
+function scoreDonor(d){
+ const blood=100;
+ const loc=Math.max(0,100-(d.km/20)*100);
+ const avail=d.available?100:45;
+ const verify=d.verified?100:45;
+ return {blood,loc,avail,verify,total:Math.round(.4*blood+.25*loc+.2*avail+.15*verify)};
+}
+function bloodFilter(group){return demoDonors.filter(d=>d.blood===group)}
+function runDirectorySearch(){
+ const group=document.getElementById('filterBlood').value;
+ const radius=+document.getElementById('filterRadius').value;
+ const arr=bloodFilter(group).filter(d=>d.km<=radius)
+ .map(d=>({...d,...scoreDonor(d)})).sort((a,b)=>b.total-a.total);
+ const body=document.getElementById('directoryRows');
+ body.innerHTML=arr.length?arr.map(d=>`<tr>
+ <td class="donorname">${d.name}</td><td>${d.blood}</td><td>${d.km} km</td>
+ <td><span class="status ${d.available?'green':''}">${d.available?'Available':'Unavailable'}</span></td>
+ <td class="score">${d.total}/100</td>
+ <td class="muted">Blood 40% · Distance 25% · Availability 20% · Verification 15%</td>
+ </tr>`).join(''):`<tr><td colspan="6" class="empty">No sample profiles found in this radius. Try expanding the search.</td></tr>`;
+}
+document.getElementById('requestForm').addEventListener('submit',e=>{
+ e.preventDefault();
+ const blood=document.getElementById('blood').value;
+ const radius=+document.getElementById('radius').value;
+ const hospital=document.getElementById('hospital').value;
+ const units=document.getElementById('units').value;
+ const urgency=document.getElementById('urgency').value;
+ const found=bloodFilter(blood).filter(d=>d.km<=radius)
+ .map(d=>({...d,...scoreDonor(d)})).sort((a,b)=>b.total-a.total);
+ const box=document.getElementById('matchResult');
+ document.getElementById('resultSummary').textContent=
+ `${found.length} sample profile(s) for ${blood} within ${radius} km of ${hospital}. Ranking is illustrative only.`;
+ document.getElementById('matchRows').innerHTML=found.length?found.map(d=>`
+ <div class="matchrow"><div class="blood">${d.blood}</div>
+ <div class="matchmeta"><b>${d.name} <span class="muted" style="font-weight:400">· ${d.km} km</span></b>
+ <small>${d.available?'Available for contact':'Not currently available'} · ${d.verified?'Profile verified (demo)':'Verification pending'}</small>
+ <div class="progress"><span style="width:${d.total}%"></span></div></div><b class="score">${d.total}</b></div>`).join(''):
+ '<div class="empty">No matching sample donors in this radius. Try expanding the radius or contacting a licensed blood bank.</div>';
+ box.classList.add('show');
+ const id='BB-'+(1043+requests.length-3);
+ requests.unshift({id,blood,hospital,units,urgency,status:'Matching'});
+ renderTracking();
+ document.getElementById('statRequests').textContent=18+requests.length-3;
+ document.getElementById('statMatches').textContent=96+found.length;
+ toast('Demo request created. Sample matches generated.');
+ box.scrollIntoView({behavior:'smooth',block:'nearest'});
+});
+function renderTracking(){
+ document.getElementById('trackingRows').innerHTML=requests.map(r=>`
+ <tr><td>#${r.id}</td><td>${r.blood}</td><td>${r.hospital}</td><td>${r.units}</td>
+ <td>${r.urgency}</td><td><span class="status ${r.status==='Responses received'?'green':r.urgency==='Critical'?'red':''}">${r.status}</span></td></tr>`).join('');
+ document.getElementById('recentRequests').innerHTML=requests.slice(0,3).map(r=>`
+ <div class="request"><div class="blood">${r.blood}</div><div class="reqinfo">
+ <b>${r.hospital}</b><small>${r.units} unit(s) · New demo request</small></div>
+ <span class="status ${r.urgency==='Critical'?'red':''}">${r.urgency}</span></div>`).join('');
+}
+document.getElementById('donorForm').addEventListener('submit',e=>{
+ e.preventDefault();
+ const name=document.getElementById('dname').value;
+ const blood=document.getElementById('dBlood').value;
+ const age=+document.getElementById('dAge').value;
+ const available=document.getElementById('dAvailable').value==='yes';
+ if(age<18){toast('Donor registration is restricted to adults in this demo.');return}
+ demoDonors.push({name,blood,km:5.0,available,verified:false,avail:available?100:45,verify:45});
+ document.getElementById('statDonors').textContent=1284+demoDonors.length-10;
+ e.target.reset();
+ toast('Sample donor profile added to this session.');
+});
+function drawBars(){
+ const data=[['O+',82],['B+',68],['A+',53],['O−',31],['AB+',24],['B−',18]];
+ document.getElementById('bars').innerHTML=data.map(([n,v])=>`
+ <div style="display:grid;grid-template-columns:38px 1fr 30px;gap:9px;align-items:center;margin:13px 0;font-size:11px">
+ <b>${n}</b><div style="height:9px;background:#f2e9eb;border-radius:10px;overflow:hidden">
+ <div style="height:100%;width:${v}%;background:linear-gradient(90deg,#c9233b,#ef7180);border-radius:10px"></div></div><span class="muted">${v}</span></div>`).join('');
+}
+renderTracking();
+drawBars();
+</script>
+</body>
+</html>
+
